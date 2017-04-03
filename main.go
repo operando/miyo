@@ -31,9 +31,9 @@ func main() {
 	api := slack.New(*token)
 
 	values := url.Values{
-		"token":     {token},
-		"channel":   {channel},
-		"thread_ts": {thread_ts},
+		"token":     {*token},
+		"channel":   {*channel},
+		"thread_ts": {*thread_ts},
 	}
 
 	response, err := threadRequest("channels.replies", values, true)
