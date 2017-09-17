@@ -1,0 +1,5 @@
+slack_token = "" # your Slack token
+
+[crowi]
+api_url = "" # your crowi api url
+token = "" # your crowi api token
