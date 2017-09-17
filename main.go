@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/b4b4r07/go-crowi"
 	"github.com/nlopes/slack"
 	"io"
 	"io/ioutil"
@@ -15,61 +16,66 @@ import (
 
 const SLACK_API string = "https://slack.com/api/"
 
-// TODO:tokenやchannelなどをconfig or パラムで設定できるようにする
-// TODO:Crowiのページ作成 + 作成終わったらページを開くようにする(オプション)
 // TODO:作成終わったらページを開くようにする(オプション)
 // TODO:投稿時間を表示する
 // TODO:Threadの開始のメッセージがわかりやすいようにする
-// TODO:CrowiのページPathの作成方法を考える
 
 func main() {
-	token := flag.String("t", "", "token")
-	channel := flag.String("c", "", "channel")
-	thread_ts := flag.String("ts", "", "thread_ts")
+	configPath := flag.String("cf", "", "Configuration file path")
+	channel := flag.String("c", "", "Slack channel to fetch thread from")
+	thread_ts := flag.String("t", "", "Unique identifier of a thread's parent message(thread_ts)")
+	pagePath := flag.String("p", "", "Create page path")
 	flag.Parse()
 
-	api := slack.New(*token)
+	var config Config
+	_, err := LoadConfig(*configPath, &config)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	api := slack.New(config.SlackToken)
 
 	values := url.Values{
-		"token":     {*token},
+		"token":     {config.SlackToken},
 		"channel":   {*channel},
 		"thread_ts": {*thread_ts},
 	}
 
-	response, err := threadRequest("channels.replies", values, true)
+	response, err := threadRequest("channels.replies", values, false)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
-	fmt.Print(response.Messages)
+	//fmt.Print(response.Messages)
 
 	boby := bytes.NewBufferString("")
 	uMap := map[string]slack.User{}
 	for _, m := range response.Messages {
-		fmt.Println(m)
+		//fmt.Println(m)
 		u, ok := uMap[m.User]
 		if ok {
-			fmt.Println("hit cache")
-			fmt.Println(u)
+			//fmt.Println("hit cache")
+			//fmt.Println(u)
 
 			boby.WriteString("## ")
-			boby.WriteString(u.Name)
-			boby.WriteString(" ")
 			boby.WriteString("![](")
-			boby.WriteString(u.Profile.Image24)
+			boby.WriteString(u.Profile.Image32)
 			boby.WriteString(")")
+			boby.WriteString(" ")
+			boby.WriteString(u.Name)
 		} else {
 			u, err := api.GetUserInfo(m.User)
 			if err == nil {
 				uMap[m.User] = *u
-				fmt.Println(u)
+				//fmt.Println(u)
 
 				boby.WriteString("## ")
-				boby.WriteString(u.Name)
-				boby.WriteString(" ")
 				boby.WriteString("![](")
-				boby.WriteString(u.Profile.Image24)
+				boby.WriteString(u.Profile.Image32)
 				boby.WriteString(")")
+				boby.WriteString(" ")
+				boby.WriteString(u.Name)
 			}
 		}
 
@@ -78,7 +84,23 @@ func main() {
 		boby.WriteString("\n\n")
 
 	}
-	fmt.Println(boby)
+	//fmt.Println(boby)
+
+	client, err := crowi.NewClient(config.Crowi.ApiUrl, config.Crowi.Token)
+	if err != nil {
+		panic(err)
+	}
+
+	res, err := client.PagesCreate(*pagePath, boby.String())
+	if err != nil {
+		panic(err)
+	}
+
+	if !res.OK {
+		log.Printf("[ERROR] %s", res.Error)
+	}
+
+	fmt.Print("SUCCESS!!")
 }
 
 type Thread struct {
