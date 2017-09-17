@@ -26,6 +26,21 @@ token = "" # your crowi api token
 ```
 
 
+## Output Image
+
+### Slack Thread
+
+![](./arts/slack_thread.png)
+
+
+### Crowi Page
+
+**Convert!!**
+
+![](./arts/crowi_page.png)
+
+
+
 ### License
 
 ```
