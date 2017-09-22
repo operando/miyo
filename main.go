@@ -66,7 +66,7 @@ func main() {
 			boby.WriteString(" ")
 			boby.WriteString(u.Name)
 			boby.WriteString(" ")
-			boby.WriteString(getTime(&m))
+			writeTime(boby, &m)
 		} else {
 			u, err := api.GetUserInfo(m.User)
 			if err == nil {
@@ -80,7 +80,7 @@ func main() {
 				boby.WriteString(" ")
 				boby.WriteString(u.Name)
 				boby.WriteString(" ")
-				boby.WriteString(getTime(&m))
+				writeTime(boby, &m)
 			}
 		}
 
@@ -156,6 +156,12 @@ func postForm(endpoint string, values url.Values, intf interface{}, debug bool) 
 
 func post(path string, values url.Values, intf interface{}, debug bool) error {
 	return postForm(SLACK_API+path, values, intf, debug)
+}
+
+func writeTime(b *bytes.Buffer, m *slack.Message) {
+	b.WriteString("<span style=\"color: #999999; font-size: 16px; font-weight:lighter;\">")
+	b.WriteString(getTime(m))
+	b.WriteString("</span>")
 }
 
 func getTime(m *slack.Message) string {
