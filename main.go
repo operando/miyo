@@ -12,12 +12,13 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 )
 
 const SLACK_API string = "https://slack.com/api/"
 
 // TODO:作成終わったらページを開くようにする(オプション)
-// TODO:投稿時間を表示する
 // TODO:Threadの開始のメッセージがわかりやすいようにする
 
 func main() {
@@ -64,6 +65,8 @@ func main() {
 			boby.WriteString(")")
 			boby.WriteString(" ")
 			boby.WriteString(u.Name)
+			boby.WriteString(" ")
+			boby.WriteString(getTime(&m))
 		} else {
 			u, err := api.GetUserInfo(m.User)
 			if err == nil {
@@ -76,6 +79,8 @@ func main() {
 				boby.WriteString(")")
 				boby.WriteString(" ")
 				boby.WriteString(u.Name)
+				boby.WriteString(" ")
+				boby.WriteString(getTime(&m))
 			}
 		}
 
@@ -151,4 +156,10 @@ func postForm(endpoint string, values url.Values, intf interface{}, debug bool) 
 
 func post(path string, values url.Values, intf interface{}, debug bool) error {
 	return postForm(SLACK_API+path, values, intf, debug)
+}
+
+func getTime(m *slack.Message) string {
+	i, _ := strconv.ParseFloat(m.Timestamp, 64)
+	t := time.Unix(int64(i), 0)
+	return t.Format("2006/1/2 15:04:05")
 }
