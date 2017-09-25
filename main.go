@@ -93,12 +93,16 @@ func main() {
 	}
 	//fmt.Println(boby)
 
-	client, err := crowi.NewClient(config.Crowi.ApiUrl, config.Crowi.Token)
+	cfg := crowi.Config{
+		URL:   config.Crowi.ApiUrl,
+		Token: config.Crowi.Token,
+	}
+	client, err := crowi.NewClient(cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	res, err := client.PagesCreate(*pagePath, boby.String())
+	res, err := client.Pages.Create(context.Background(), *pagePath, boby.String())
 	if err != nil {
 		panic(err)
 	}
