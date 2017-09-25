@@ -2,11 +2,10 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/b4b4r07/go-crowi"
-	"github.com/nlopes/slack"
 	"io"
 	"io/ioutil"
 	"log"
@@ -14,6 +13,9 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+
+	crowi "github.com/b4b4r07/go-crowi"
+	"github.com/nlopes/slack"
 )
 
 const SLACK_API string = "https://slack.com/api/"
