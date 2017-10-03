@@ -2,11 +2,10 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/b4b4r07/go-crowi"
-	"github.com/nlopes/slack"
 	"io"
 	"io/ioutil"
 	"log"
@@ -14,6 +13,9 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+
+	crowi "github.com/b4b4r07/go-crowi"
+	"github.com/nlopes/slack"
 )
 
 const SLACK_API string = "https://slack.com/api/"
@@ -91,12 +93,16 @@ func main() {
 	}
 	//fmt.Println(boby)
 
-	client, err := crowi.NewClient(config.Crowi.ApiUrl, config.Crowi.Token)
+	cfg := crowi.Config{
+		URL:   config.Crowi.ApiUrl,
+		Token: config.Crowi.Token,
+	}
+	client, err := crowi.NewClient(cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	res, err := client.PagesCreate(*pagePath, boby.String())
+	res, err := client.Pages.Create(context.Background(), *pagePath, boby.String())
 	if err != nil {
 		panic(err)
 	}
